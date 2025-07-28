@@ -2,40 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Certify GRC - NIST CSF Professional Design System */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Brand Colors - Professional Cybersecurity Theme */
+    --background: 217 25% 97%;
+    --foreground: 215 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 25% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Deep Security Blue */
+    --primary: 215 84% 25%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 215 84% 35%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Professional Gray */
+    --secondary: 215 16% 93%;
+    --secondary-foreground: 215 25% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted Tones */
+    --muted: 215 16% 95%;
+    --muted-foreground: 215 16% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Cyber Green */
+    --accent: 145 70% 45%;
+    --accent-foreground: 0 0% 98%;
+    --accent-glow: 145 70% 55%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status Colors */
+    --success: 145 70% 45%;
+    --success-foreground: 0 0% 98%;
+    --warning: 45 100% 55%;
+    --warning-foreground: 0 0% 15%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* NIST Framework Colors */
+    --identify: 210 100% 50%;
+    --protect: 145 70% 45%;
+    --detect: 280 100% 50%;
+    --respond: 25 100% 55%;
+    --recover: 145 85% 35%;
+    --govern: 215 84% 25%;
 
+    /* Interface Elements */
+    --border: 215 20% 88%;
+    --input: 215 20% 90%;
+    --ring: 215 84% 25%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-cyber: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-dashboard: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
+
+    /* Shadows */
+    --shadow-cyber: 0 10px 30px -5px hsl(var(--primary) / 0.2);
+    --shadow-glow: 0 0 30px hsl(var(--accent) / 0.3);
+    --shadow-card: 0 4px 20px -2px hsl(var(--primary) / 0.1);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
@@ -56,41 +88,64 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark Mode - Professional Cybersecurity Theme */
+    --background: 215 28% 7%;
+    --foreground: 215 20% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 215 28% 9%;
+    --card-foreground: 215 20% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 215 28% 9%;
+    --popover-foreground: 215 20% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary - Bright Security Blue for dark mode */
+    --primary: 215 84% 45%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 215 84% 55%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Dark Professional Gray */
+    --secondary: 215 25% 15%;
+    --secondary-foreground: 215 20% 85%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Muted Tones */
+    --muted: 215 25% 12%;
+    --muted-foreground: 215 16% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent - Bright Cyber Green for dark mode */
+    --accent: 145 70% 55%;
+    --accent-foreground: 0 0% 98%;
+    --accent-glow: 145 70% 65%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status Colors - Adjusted for dark mode */
+    --success: 145 70% 55%;
+    --success-foreground: 0 0% 98%;
+    --warning: 45 100% 65%;
+    --warning-foreground: 0 0% 15%;
+    --destructive: 0 84% 70%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* NIST Framework Colors - Brighter for dark mode */
+    --identify: 210 100% 60%;
+    --protect: 145 70% 55%;
+    --detect: 280 100% 60%;
+    --respond: 25 100% 65%;
+    --recover: 145 85% 45%;
+    --govern: 215 84% 45%;
+
+    /* Interface Elements */
+    --border: 215 25% 18%;
+    --input: 215 25% 15%;
+    --ring: 215 84% 45%;
+
+    /* Sidebar */
+    --sidebar-background: 215 28% 8%;
+    --sidebar-foreground: 215 20% 90%;
+    --sidebar-primary: 215 84% 45%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 215 25% 12%;
+    --sidebar-accent-foreground: 215 20% 85%;
+    --sidebar-border: 215 25% 15%;
+    --sidebar-ring: 215 84% 45%;
   }
 }
 

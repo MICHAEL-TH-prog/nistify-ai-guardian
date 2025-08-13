@@ -16,16 +16,22 @@ import { cn } from "@/lib/utils";
 
 const navigationItems = [
   {
-    title: "Dashboard",
-    href: "/",
-    icon: BarChart3,
-    description: "Overview & Analytics"
-  },
-  {
     title: "Organization Setup",
     href: "/setup",
     icon: Settings,
     description: "Company Profile & Scope"
+  },
+  {
+    title: "Team",
+    href: "/team",
+    icon: Users,
+    description: "User Management"
+  },
+  {
+    title: "Dashboard",
+    href: "/",
+    icon: BarChart3,
+    description: "Overview & Analytics"
   },
   {
     title: "Govern",
@@ -80,12 +86,6 @@ const navigationItems = [
     href: "/reports",
     icon: FileText,
     description: "Compliance Reports"
-  },
-  {
-    title: "Team",
-    href: "/team",
-    icon: Users,
-    description: "User Management"
   }
 ];
 

@@ -12,8 +12,8 @@ import { Building2, Users, DollarSign, Shield, CheckCircle, ArrowRight } from "l
 interface OrganizationData {
   name: string;
   size: string;
-  revenue: string;
   sector: string;
+  customSector: string;
   regulations: string[];
   currentProfile: string;
   targetProfile: string;
@@ -28,14 +28,6 @@ const companySizes = [
   "1000+ employees"
 ];
 
-const revenueBands = [
-  "Under $1M",
-  "$1M - $10M",
-  "$10M - $50M", 
-  "$50M - $100M",
-  "$100M - $500M",
-  "$500M+"
-];
 
 const sectors = [
   "Financial Services",
@@ -50,15 +42,9 @@ const sectors = [
 ];
 
 const regulations = [
-  "SOX (Sarbanes-Oxley)",
   "HIPAA",
-  "PCI DSS",
-  "GDPR",
   "SOC 2",
-  "ISO 27001",
-  "NIST 800-53",
-  "CMMC",
-  "FedRAMP"
+  "ISO 27001"
 ];
 
 const profiles = [
@@ -73,8 +59,8 @@ export const OrganizationSetup = () => {
   const [orgData, setOrgData] = useState<OrganizationData>({
     name: "",
     size: "",
-    revenue: "",
     sector: "",
+    customSector: "",
     regulations: [],
     currentProfile: "",
     targetProfile: ""
@@ -95,7 +81,7 @@ export const OrganizationSetup = () => {
   const isStepComplete = (stepNum: number) => {
     switch (stepNum) {
       case 1:
-        return orgData.name && orgData.size && orgData.revenue && orgData.sector;
+        return orgData.name && orgData.size && (orgData.sector !== "Other" ? orgData.sector : orgData.customSector);
       case 2:
         return orgData.regulations.length > 0;
       case 3:
@@ -167,32 +153,10 @@ export const OrganizationSetup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Annual Revenue</Label>
-                <Select 
-                  value={orgData.revenue} 
-                  onValueChange={(value) => setOrgData(prev => ({ ...prev, revenue: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select revenue band" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {revenueBands.map((revenue) => (
-                      <SelectItem key={revenue} value={revenue}>
-                        <div className="flex items-center">
-                          <DollarSign className="w-4 h-4 mr-2" />
-                          {revenue}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
                 <Label>Industry Sector</Label>
                 <Select 
                   value={orgData.sector} 
-                  onValueChange={(value) => setOrgData(prev => ({ ...prev, sector: value }))}
+                  onValueChange={(value) => setOrgData(prev => ({ ...prev, sector: value, customSector: value === "Other" ? "" : prev.customSector }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select industry sector" />
@@ -205,6 +169,15 @@ export const OrganizationSetup = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                
+                {orgData.sector === "Other" && (
+                  <Input
+                    placeholder="Please specify your industry sector"
+                    value={orgData.customSector}
+                    onChange={(e) => setOrgData(prev => ({ ...prev, customSector: e.target.value }))}
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
           </CardContent>

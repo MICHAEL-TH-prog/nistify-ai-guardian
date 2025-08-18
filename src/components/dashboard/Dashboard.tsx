@@ -54,6 +54,29 @@ export const Dashboard = () => {
     frameworkModules.reduce((sum, module) => sum + module.score, 0) / frameworkModules.length
   );
 
+  // Get organization data from localStorage
+  const getOrganizationData = () => {
+    try {
+      const stored = localStorage.getItem('organizationData');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const orgData = getOrganizationData();
+  
+  // Profile mappings
+  const getProfileName = (profileId: string) => {
+    const profiles = {
+      tier1: "Tier 1: Partial",
+      tier2: "Tier 2: Risk Informed", 
+      tier3: "Tier 3: Repeatable",
+      tier4: "Tier 4: Adaptive"
+    };
+    return profiles[profileId as keyof typeof profiles] || "Not Set";
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -65,10 +88,16 @@ export const Dashboard = () => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Badge variant="outline" className="text-sm px-3 py-1">
-            <Activity className="w-4 h-4 mr-1" />
-            Tier 3: Repeatable
-          </Badge>
+          <div className="flex items-center space-x-2">
+            <Badge variant="outline" className="text-sm px-3 py-1">
+              <Activity className="w-4 h-4 mr-1" />
+              Current: {orgData?.currentProfile ? getProfileName(orgData.currentProfile) : "Not Set"}
+            </Badge>
+            <Badge variant="secondary" className="text-sm px-3 py-1">
+              <Target className="w-4 h-4 mr-1" />
+              Target: {orgData?.targetProfile ? getProfileName(orgData.targetProfile) : "Not Set"}
+            </Badge>
+          </div>
           <Button>
             <FileText className="w-4 h-4 mr-2" />
             Generate Report

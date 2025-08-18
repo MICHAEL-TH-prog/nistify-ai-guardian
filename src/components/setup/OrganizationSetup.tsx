@@ -324,8 +324,11 @@ export const OrganizationSetup = () => {
           ) : (
             <Button
               onClick={() => {
-                // Save organization data and proceed to dashboard
+                // Save organization data to localStorage
+                localStorage.setItem('organizationData', JSON.stringify(orgData));
                 console.log("Organization setup complete:", orgData);
+                // Navigate to dashboard
+                window.location.href = '/';
               }}
               disabled={!isStepComplete(step)}
             >

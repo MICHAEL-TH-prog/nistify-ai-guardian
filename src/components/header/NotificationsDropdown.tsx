@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell, AlertTriangle, Shield, FileText, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +29,8 @@ const notifications = [
     message: "Unpatched vulnerability found in server infrastructure",
     time: "2 hours ago",
     icon: AlertTriangle,
-    priority: "high"
+    priority: "high",
+    route: "/identify"
   },
   {
     id: 2,
@@ -37,7 +39,8 @@ const notifications = [
     message: "Access Control Policy needs annual review",
     time: "1 day ago",
     icon: Shield,
-    priority: "medium"
+    priority: "medium",
+    route: "/govern"
   },
   {
     id: 3,
@@ -46,7 +49,8 @@ const notifications = [
     message: "Suspicious login attempt successfully blocked",
     time: "2 days ago",
     icon: FileText,
-    priority: "low"
+    priority: "low",
+    route: "/respond"
   },
   {
     id: 4,
@@ -55,7 +59,8 @@ const notifications = [
     message: "SOC 2 audit evidence submission due in 7 days",
     time: "3 days ago",
     icon: Clock,
-    priority: "medium"
+    priority: "medium",
+    route: "/assessment"
   },
   {
     id: 5,
@@ -64,7 +69,8 @@ const notifications = [
     message: "Multiple users using weak passwords detected",
     time: "4 days ago",
     icon: AlertTriangle,
-    priority: "medium"
+    priority: "medium",
+    route: "/identify"
   },
   {
     id: 6,
@@ -73,7 +79,8 @@ const notifications = [
     message: "Data Retention Policy v3.0 has been published",
     time: "5 days ago",
     icon: Shield,
-    priority: "low"
+    priority: "low",
+    route: "/govern"
   },
   {
     id: 7,
@@ -82,7 +89,8 @@ const notifications = [
     message: "Increased failed login attempts from unusual locations",
     time: "6 days ago",
     icon: FileText,
-    priority: "medium"
+    priority: "medium",
+    route: "/detect"
   },
   {
     id: 8,
@@ -91,13 +99,20 @@ const notifications = [
     message: "Annual security training deadline approaching",
     time: "1 week ago",
     icon: Clock,
-    priority: "low"
+    priority: "low",
+    route: "/reports"
   },
 ];
 
 export const NotificationsDropdown = () => {
+  const navigate = useNavigate();
   const [showAllDialog, setShowAllDialog] = useState(false);
   const unreadCount = notifications.filter(n => n.priority === "high").length;
+
+  const handleNotificationClick = (notification: typeof notifications[0]) => {
+    navigate(notification.route);
+    setShowAllDialog(false);
+  };
 
   return (
     <DropdownMenu>
@@ -116,7 +131,10 @@ export const NotificationsDropdown = () => {
         <div className="max-h-64 overflow-y-auto">
           {notifications.slice(0, 4).map((notification) => (
             <DropdownMenuItem key={notification.id} className="p-0">
-              <Card className="w-full border-0 shadow-none hover:bg-secondary/50">
+              <Card 
+                className="w-full border-0 shadow-none hover:bg-secondary/50 cursor-pointer"
+                onClick={() => handleNotificationClick(notification)}
+              >
                 <div className="p-3 flex items-start space-x-3">
                   <div className={`w-2 h-2 rounded-full mt-2 ${
                     notification.priority === "high" ? "bg-destructive" :
@@ -172,7 +190,11 @@ export const NotificationsDropdown = () => {
             <ScrollArea className="h-full max-h-[60vh] pr-4">
               <div className="space-y-3">
                 {notifications.map((notification) => (
-                  <Card key={notification.id} className="p-4 hover:bg-secondary/50 transition-colors">
+                  <Card 
+                    key={notification.id} 
+                    className="p-4 hover:bg-secondary/50 transition-colors cursor-pointer"
+                    onClick={() => handleNotificationClick(notification)}
+                  >
                     <div className="flex items-start space-x-3">
                       <div className={`w-3 h-3 rounded-full mt-2 flex-shrink-0 ${
                         notification.priority === "high" ? "bg-destructive" :

@@ -39,7 +39,21 @@ const Govern = () => {
 
   const [showNewPolicyDialog, setShowNewPolicyDialog] = useState(false);
   const [showAssignRoleDialog, setShowAssignRoleDialog] = useState(false);
+  const [showPolicyDetailsDialog, setShowPolicyDetailsDialog] = useState(false);
+  const [showNistConfigDialog, setShowNistConfigDialog] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  const [selectedNistCategory, setSelectedNistCategory] = useState(null);
+  const [newPolicyForm, setNewPolicyForm] = useState({
+    name: "",
+    description: "",
+    status: "draft"
+  });
+  const [roleAssignmentForm, setRoleAssignmentForm] = useState({
+    assigneeName: "",
+    assigneeEmail: "",
+    startDate: ""
+  });
 
   // Calculate metrics
   const policyMetrics = {
@@ -115,33 +129,134 @@ const Govern = () => {
   };
 
   const handleNewPolicy = () => {
-    toast({
-      title: "Policy Creation",
-      description: "New policy dialog would open here",
-    });
-    setShowNewPolicyDialog(false);
+    if (newPolicyForm.name && newPolicyForm.description) {
+      const newPolicy = {
+        id: policies.length + 1,
+        name: newPolicyForm.name,
+        description: newPolicyForm.description,
+        status: newPolicyForm.status,
+        lastReview: new Date().toISOString().split('T')[0],
+        nextReview: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 6 months from now
+      };
+      
+      setPolicies([...policies, newPolicy]);
+      setNewPolicyForm({ name: "", description: "", status: "draft" });
+      setShowNewPolicyDialog(false);
+      
+      toast({
+        title: "Policy Created",
+        description: `${newPolicy.name} has been created successfully`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAssignRole = () => {
-    if (selectedRole) {
+    if (selectedRole && roleAssignmentForm.assigneeName && roleAssignmentForm.assigneeEmail) {
       setRoles(roles.map(role => 
         role.id === selectedRole.id 
-          ? { ...role, assignee: "New Assignee", status: "assigned" }
+          ? { 
+              ...role, 
+              assignee: roleAssignmentForm.assigneeName, 
+              status: "assigned" 
+            }
           : role
       ));
-      toast({
-        title: "Role Assigned",
-        description: `${selectedRole.name} has been assigned successfully`,
-      });
+      
+      setRoleAssignmentForm({ assigneeName: "", assigneeEmail: "", startDate: "" });
       setShowAssignRoleDialog(false);
       setSelectedRole(null);
+      
+      toast({
+        title: "Role Assigned",
+        description: `${selectedRole.name} has been assigned to ${roleAssignmentForm.assigneeName}`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
     }
   };
 
   const generateGovernanceReport = () => {
+    // Simulate report generation
+    const reportData = {
+      timestamp: new Date().toLocaleString(),
+      policyMetrics,
+      policies: policies.length,
+      roles: roles.length,
+      assignedRoles: roles.filter(r => r.status === "assigned").length,
+      nistCompliance: Object.keys(nistCategories).length
+    };
+    
+    // Create downloadable content
+    const reportContent = `
+NIST CSF 2.0 Governance Report
+Generated: ${reportData.timestamp}
+
+=== EXECUTIVE SUMMARY ===
+Policy Coverage: ${reportData.policyMetrics.coverage}%
+Role Assignment: ${reportData.policyMetrics.roleAssignment}%
+Governance Score: ${reportData.policyMetrics.governanceScore}%
+
+=== POLICY STATUS ===
+Total Policies: ${reportData.policies}
+Approved: ${policies.filter(p => p.status === "approved").length}
+Draft: ${policies.filter(p => p.status === "draft").length}
+Under Review: ${policies.filter(p => p.status === "review").length}
+
+=== ROLE ASSIGNMENTS ===
+Total Roles: ${reportData.roles}
+Assigned: ${reportData.assignedRoles}
+Vacant: ${reportData.roles - reportData.assignedRoles}
+
+=== NIST CSF 2.0 GOVERNANCE CATEGORIES ===
+${Object.entries(nistCategories).map(([key, cat]) => 
+  `${key}: ${cat.title}\n${cat.items.map(item => `  - ${item.name}: ${item.progress}%`).join('\n')}`
+).join('\n\n')}
+    `;
+    
+    // Create and download file
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `NIST-CSF-Governance-Report-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
     toast({
-      title: "Governance Report",
-      description: "Generating comprehensive governance report...",
+      title: "Report Generated",
+      description: "Governance report has been downloaded successfully",
+    });
+  };
+
+  const handleViewPolicy = (policy) => {
+    setSelectedPolicy(policy);
+    setShowPolicyDetailsDialog(true);
+  };
+
+  const handleNistConfig = (categoryKey, category) => {
+    setSelectedNistCategory({ key: categoryKey, ...category });
+    setShowNistConfigDialog(true);
+  };
+
+  const handleUpdatePolicyStatus = (policyId, newStatus) => {
+    setPolicies(policies.map(p => 
+      p.id === policyId ? { ...p, status: newStatus } : p
+    ));
+    toast({
+      title: "Policy Updated",
+      description: `Policy status updated to ${newStatus}`,
     });
   };
 
@@ -174,15 +289,25 @@ const Govern = () => {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="policy-name">Policy Name</Label>
-                    <Input id="policy-name" placeholder="Enter policy name" />
+                    <Input 
+                      id="policy-name" 
+                      placeholder="Enter policy name"
+                      value={newPolicyForm.name}
+                      onChange={(e) => setNewPolicyForm({...newPolicyForm, name: e.target.value})}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="policy-description">Description</Label>
-                    <Textarea id="policy-description" placeholder="Policy description" />
+                    <Textarea 
+                      id="policy-description" 
+                      placeholder="Policy description"
+                      value={newPolicyForm.description}
+                      onChange={(e) => setNewPolicyForm({...newPolicyForm, description: e.target.value})}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="policy-status">Status</Label>
-                    <Select>
+                    <Select value={newPolicyForm.status} onValueChange={(value) => setNewPolicyForm({...newPolicyForm, status: value})}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
@@ -313,7 +438,11 @@ const Govern = () => {
                                 <p className="text-xs text-muted-foreground mt-1">{item.progress}% complete</p>
                               </div>
                             </div>
-                            <Button variant="ghost" size="sm">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleNistConfig(key, category)}
+                            >
                               <Settings className="w-4 h-4" />
                             </Button>
                           </div>
@@ -364,7 +493,11 @@ const Govern = () => {
                       }>
                         {policy.status}
                       </Badge>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleViewPolicy(policy)}
+                      >
                         <Eye className="w-4 h-4" />
                       </Button>
                     </div>
@@ -432,17 +565,187 @@ const Govern = () => {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="assignee-name">Assignee Name</Label>
-                <Input id="assignee-name" placeholder="Enter assignee name" />
+                <Input 
+                  id="assignee-name" 
+                  placeholder="Enter assignee name"
+                  value={roleAssignmentForm.assigneeName}
+                  onChange={(e) => setRoleAssignmentForm({...roleAssignmentForm, assigneeName: e.target.value})}
+                />
               </div>
               <div>
                 <Label htmlFor="assignee-email">Email</Label>
-                <Input id="assignee-email" type="email" placeholder="Enter email address" />
+                <Input 
+                  id="assignee-email" 
+                  type="email" 
+                  placeholder="Enter email address"
+                  value={roleAssignmentForm.assigneeEmail}
+                  onChange={(e) => setRoleAssignmentForm({...roleAssignmentForm, assigneeEmail: e.target.value})}
+                />
               </div>
               <div>
                 <Label htmlFor="start-date">Start Date</Label>
-                <Input id="start-date" type="date" />
+                <Input 
+                  id="start-date" 
+                  type="date"
+                  value={roleAssignmentForm.startDate}
+                  onChange={(e) => setRoleAssignmentForm({...roleAssignmentForm, startDate: e.target.value})}
+                />
               </div>
               <Button onClick={handleAssignRole} className="w-full">Assign Role</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Policy Details Dialog */}
+        <Dialog open={showPolicyDetailsDialog} onOpenChange={setShowPolicyDetailsDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Policy Details: {selectedPolicy?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Status</Label>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Badge variant={
+                      selectedPolicy?.status === "approved" ? "default" :
+                      selectedPolicy?.status === "draft" ? "secondary" : "destructive"
+                    }>
+                      {selectedPolicy?.status}
+                    </Badge>
+                    <Select 
+                      value={selectedPolicy?.status} 
+                      onValueChange={(value) => handleUpdatePolicyStatus(selectedPolicy?.id, value)}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="review">Under Review</SelectItem>
+                        <SelectItem value="approved">Approved</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label>Last Review</Label>
+                  <p className="mt-1 text-sm text-muted-foreground">{selectedPolicy?.lastReview}</p>
+                </div>
+              </div>
+              
+              <div>
+                <Label>Description</Label>
+                <p className="mt-1 text-sm text-muted-foreground">{selectedPolicy?.description}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Next Review Date</Label>
+                  <p className="mt-1 text-sm text-muted-foreground">{selectedPolicy?.nextReview}</p>
+                </div>
+                <div>
+                  <Label>Policy Version</Label>
+                  <p className="mt-1 text-sm text-muted-foreground">v2.1</p>
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <Button variant="outline" className="flex-1">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Policy
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Edit Policy
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* NIST Configuration Dialog */}
+        <Dialog open={showNistConfigDialog} onOpenChange={setShowNistConfigDialog}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>
+                Configure {selectedNistCategory?.key}: {selectedNistCategory?.title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                {selectedNistCategory?.icon && (
+                  <selectedNistCategory.icon className="w-8 h-8 text-nist-govern" />
+                )}
+                <div>
+                  <h3 className="text-lg font-semibold">{selectedNistCategory?.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Manage implementation status and progress for this NIST category
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {selectedNistCategory?.items?.map((item, index) => (
+                  <Card key={index} className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            item.status === "complete" ? "bg-success" :
+                            item.status === "in-progress" ? "bg-warning" : "bg-destructive"
+                          }`} />
+                          <h4 className="font-medium">{item.name}</h4>
+                        </div>
+                        <Select value={item.status}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="in-progress">In Progress</SelectItem>
+                            <SelectItem value="complete">Complete</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Progress</span>
+                          <span>{item.progress}%</span>
+                        </div>
+                        <Progress value={item.progress} className="h-2 mt-1" />
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm">
+                          <FileText className="w-3 h-3 mr-1" />
+                          Evidence
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Users className="w-3 h-3 mr-1" />
+                          Assign
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+              
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowNistConfigDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => {
+                  toast({
+                    title: "Configuration Saved",
+                    description: `${selectedNistCategory?.title} configuration has been updated`,
+                  });
+                  setShowNistConfigDialog(false);
+                }}>
+                  Save Changes
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>

@@ -694,11 +694,11 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
 
         {/* Policy Details Dialog */}
         <Dialog open={showPolicyDetailsDialog} onOpenChange={setShowPolicyDetailsDialog}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Policy Details: {selectedPolicy?.name}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="flex-1 overflow-y-auto space-y-6 pr-2">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Status</Label>
@@ -746,29 +746,30 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
                 </div>
               </div>
               
-              <div className="flex space-x-2">
-                <Button variant="outline" className="flex-1">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Policy
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Edit Policy
-                </Button>
-              </div>
+            </div>
+            
+            <div className="flex space-x-2 pt-4 border-t bg-background">
+              <Button variant="outline" className="flex-1">
+                <Download className="w-4 h-4 mr-2" />
+                Download Policy
+              </Button>
+              <Button variant="outline" className="flex-1">
+                <FileText className="w-4 h-4 mr-2" />
+                Edit Policy
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
 
         {/* NIST Configuration Dialog */}
         <Dialog open={showNistConfigDialog} onOpenChange={setShowNistConfigDialog}>
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>
                 Configure {selectedNistCategory?.key}: {selectedNistCategory?.title}
               </DialogTitle>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="flex-1 overflow-y-auto space-y-6 pr-2">
               <div className="flex items-center space-x-3">
                 {selectedNistCategory?.icon && (
                   <selectedNistCategory.icon className="w-8 h-8 text-nist-govern" />
@@ -851,32 +852,32 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
                   </Card>
                 ))}
               </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setShowNistConfigDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => {
-                  toast({
-                    title: "Configuration Saved",
-                    description: `${selectedNistCategory?.title} configuration has been updated`,
-                  });
-                  setShowNistConfigDialog(false);
-                }}>
-                  Save Changes
-                </Button>
-              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-2 pt-4 border-t bg-background">
+              <Button variant="outline" onClick={() => setShowNistConfigDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => {
+                toast({
+                  title: "Configuration Saved",
+                  description: `${selectedNistCategory?.title} configuration has been updated`,
+                });
+                setShowNistConfigDialog(false);
+              }}>
+                Save Changes
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
 
         {/* Evidence Management Dialog */}
         <Dialog open={showEvidenceDialog} onOpenChange={setShowEvidenceDialog}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Manage Evidence: {selectedNistItem?.name}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="flex-1 overflow-y-auto space-y-6 pr-2">
               {/* Existing Evidence */}
               {selectedNistItem?.evidence?.length > 0 && (
                 <div>
@@ -936,26 +937,26 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
                   />
                 </div>
               </div>
+            </div>
 
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setShowEvidenceDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAddEvidence}>
-                  Add Evidence
-                </Button>
-              </div>
+            <div className="flex justify-end space-x-2 pt-4 border-t bg-background">
+              <Button variant="outline" onClick={() => setShowEvidenceDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddEvidence}>
+                Add Evidence
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
 
         {/* Assignment Dialog */}
         <Dialog open={showAssignItemDialog} onOpenChange={setShowAssignItemDialog}>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Assign Responsibility: {selectedNistItem?.name}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="flex-1 overflow-y-auto space-y-4 pr-2">
               {selectedNistItem?.assignee && (
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm">
@@ -992,15 +993,15 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
                   onChange={(e) => setItemAssignmentForm({...itemAssignmentForm, notes: e.target.value})}
                 />
               </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setShowAssignItemDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAssignNistItem}>
-                  Assign Responsibility
-                </Button>
-              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-2 pt-4 border-t bg-background">
+              <Button variant="outline" onClick={() => setShowAssignItemDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAssignNistItem}>
+                Assign Responsibility
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

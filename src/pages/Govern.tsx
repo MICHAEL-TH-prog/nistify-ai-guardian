@@ -44,6 +44,9 @@ const Govern = () => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [selectedPolicy, setSelectedPolicy] = useState(null);
   const [selectedNistCategory, setSelectedNistCategory] = useState(null);
+  const [selectedNistItem, setSelectedNistItem] = useState(null);
+  const [showEvidenceDialog, setShowEvidenceDialog] = useState(false);
+  const [showAssignItemDialog, setShowAssignItemDialog] = useState(false);
   const [newPolicyForm, setNewPolicyForm] = useState({
     name: "",
     description: "",
@@ -53,6 +56,16 @@ const Govern = () => {
     assigneeName: "",
     assigneeEmail: "",
     startDate: ""
+  });
+  const [itemAssignmentForm, setItemAssignmentForm] = useState({
+    assigneeName: "",
+    assigneeEmail: "",
+    notes: ""
+  });
+  const [evidenceForm, setEvidenceForm] = useState({
+    fileName: "",
+    description: "",
+    uploadDate: ""
   });
 
   // Calculate metrics
@@ -65,68 +78,68 @@ const Govern = () => {
   };
 
   // NIST GV Categories data
-  const nistCategories = {
+  const [nistCategories, setNistCategories] = useState({
     "GV.OC": {
       title: "Organizational Context",
       icon: Building,
       items: [
-        { name: "Mission & Business Context", status: "complete", progress: 90 },
-        { name: "Stakeholder Expectations", status: "in-progress", progress: 75 },
-        { name: "Legal & Regulatory Requirements", status: "complete", progress: 95 },
-        { name: "Critical Technology Dependencies", status: "in-progress", progress: 60 }
+        { id: 1, name: "Mission & Business Context", status: "complete", progress: 90, assignee: "John Smith", evidence: [] },
+        { id: 2, name: "Stakeholder Expectations", status: "in-progress", progress: 75, assignee: "", evidence: [] },
+        { id: 3, name: "Legal & Regulatory Requirements", status: "complete", progress: 95, assignee: "Sarah Johnson", evidence: ["Legal_Framework_2024.pdf"] },
+        { id: 4, name: "Critical Technology Dependencies", status: "in-progress", progress: 60, assignee: "", evidence: [] }
       ]
     },
     "GV.RM": {
       title: "Risk Management Strategy", 
       icon: TrendingUp,
       items: [
-        { name: "Risk Management Objectives", status: "complete", progress: 85 },
-        { name: "Risk Appetite & Tolerance", status: "complete", progress: 80 },
-        { name: "Enterprise Risk Management Integration", status: "in-progress", progress: 70 },
-        { name: "Risk Communication Strategy", status: "draft", progress: 45 }
+        { id: 5, name: "Risk Management Objectives", status: "complete", progress: 85, assignee: "Emily Chen", evidence: [] },
+        { id: 6, name: "Risk Appetite & Tolerance", status: "complete", progress: 80, assignee: "Emily Chen", evidence: [] },
+        { id: 7, name: "Enterprise Risk Management Integration", status: "in-progress", progress: 70, assignee: "", evidence: [] },
+        { id: 8, name: "Risk Communication Strategy", status: "draft", progress: 45, assignee: "", evidence: [] }
       ]
     },
     "GV.RR": {
       title: "Roles, Responsibilities & Authorities",
       icon: UserCheck,
       items: [
-        { name: "Leadership Accountability", status: "complete", progress: 90 },
-        { name: "Cybersecurity Roles Definition", status: "complete", progress: 85 },
-        { name: "Resource Allocation", status: "in-progress", progress: 65 },
-        { name: "HR Integration", status: "draft", progress: 40 }
+        { id: 9, name: "Leadership Accountability", status: "complete", progress: 90, assignee: "John Smith", evidence: [] },
+        { id: 10, name: "Cybersecurity Roles Definition", status: "complete", progress: 85, assignee: "John Smith", evidence: [] },
+        { id: 11, name: "Resource Allocation", status: "in-progress", progress: 65, assignee: "", evidence: [] },
+        { id: 12, name: "HR Integration", status: "draft", progress: 40, assignee: "", evidence: [] }
       ]
     },
     "GV.PO": {
       title: "Policy",
       icon: BookOpen,
       items: [
-        { name: "Cybersecurity Risk Management Policies", status: "complete", progress: 85 },
-        { name: "Policy Updates & Maintenance", status: "in-progress", progress: 70 },
-        { name: "Policy Communication", status: "complete", progress: 80 },
-        { name: "Policy Enforcement", status: "in-progress", progress: 75 }
+        { id: 13, name: "Cybersecurity Risk Management Policies", status: "complete", progress: 85, assignee: "Sarah Johnson", evidence: [] },
+        { id: 14, name: "Policy Updates & Maintenance", status: "in-progress", progress: 70, assignee: "", evidence: [] },
+        { id: 15, name: "Policy Communication", status: "complete", progress: 80, assignee: "Mike Davis", evidence: [] },
+        { id: 16, name: "Policy Enforcement", status: "in-progress", progress: 75, assignee: "", evidence: [] }
       ]
     },
     "GV.OV": {
       title: "Oversight",
       icon: Eye,
       items: [
-        { name: "Risk Management Outcome Monitoring", status: "in-progress", progress: 70 },
-        { name: "Strategy & Program Reviews", status: "complete", progress: 85 },
-        { name: "Continuous Improvement", status: "in-progress", progress: 60 },
-        { name: "Performance Metrics", status: "draft", progress: 50 }
+        { id: 17, name: "Risk Management Outcome Monitoring", status: "in-progress", progress: 70, assignee: "", evidence: [] },
+        { id: 18, name: "Strategy & Program Reviews", status: "complete", progress: 85, assignee: "John Smith", evidence: [] },
+        { id: 19, name: "Continuous Improvement", status: "in-progress", progress: 60, assignee: "", evidence: [] },
+        { id: 20, name: "Performance Metrics", status: "draft", progress: 50, assignee: "", evidence: [] }
       ]
     },
     "GV.SC": {
       title: "Supply Chain Risk Management",
       icon: ShoppingCart,
       items: [
-        { name: "Supplier Risk Assessment", status: "in-progress", progress: 65 },
-        { name: "Contract Requirements", status: "complete", progress: 80 },
-        { name: "Due Diligence Processes", status: "in-progress", progress: 55 },
-        { name: "Supply Chain Monitoring", status: "draft", progress: 35 }
+        { id: 21, name: "Supplier Risk Assessment", status: "in-progress", progress: 65, assignee: "", evidence: [] },
+        { id: 22, name: "Contract Requirements", status: "complete", progress: 80, assignee: "Sarah Johnson", evidence: [] },
+        { id: 23, name: "Due Diligence Processes", status: "in-progress", progress: 55, assignee: "", evidence: [] },
+        { id: 24, name: "Supply Chain Monitoring", status: "draft", progress: 35, assignee: "", evidence: [] }
       ]
     }
-  };
+  });
 
   const handleNewPolicy = () => {
     if (newPolicyForm.name && newPolicyForm.description) {
@@ -258,6 +271,89 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
       title: "Policy Updated",
       description: `Policy status updated to ${newStatus}`,
     });
+  };
+
+  const handleUpdateNistItemStatus = (categoryKey, itemId, newStatus) => {
+    const progressMap = {
+      "draft": 25,
+      "in-progress": 65,
+      "complete": 100
+    };
+
+    setNistCategories(prev => ({
+      ...prev,
+      [categoryKey]: {
+        ...prev[categoryKey],
+        items: prev[categoryKey].items.map(item =>
+          item.id === itemId 
+            ? { ...item, status: newStatus, progress: progressMap[newStatus] }
+            : item
+        )
+      }
+    }));
+
+    toast({
+      title: "Status Updated",
+      description: `Item status updated to ${newStatus}`,
+    });
+  };
+
+  const handleAssignNistItem = () => {
+    if (selectedNistItem && itemAssignmentForm.assigneeName) {
+      const categoryKey = selectedNistCategory.key;
+      setNistCategories(prev => ({
+        ...prev,
+        [categoryKey]: {
+          ...prev[categoryKey],
+          items: prev[categoryKey].items.map(item =>
+            item.id === selectedNistItem.id 
+              ? { ...item, assignee: itemAssignmentForm.assigneeName }
+              : item
+          )
+        }
+      }));
+
+      setItemAssignmentForm({ assigneeName: "", assigneeEmail: "", notes: "" });
+      setShowAssignItemDialog(false);
+      setSelectedNistItem(null);
+      
+      toast({
+        title: "Assignment Complete",
+        description: `${selectedNistItem.name} assigned to ${itemAssignmentForm.assigneeName}`,
+      });
+    }
+  };
+
+  const handleAddEvidence = () => {
+    if (selectedNistItem && evidenceForm.fileName) {
+      const categoryKey = selectedNistCategory.key;
+      const newEvidence = {
+        id: Date.now(),
+        fileName: evidenceForm.fileName,
+        description: evidenceForm.description,
+        uploadDate: evidenceForm.uploadDate || new Date().toISOString().split('T')[0]
+      };
+
+      setNistCategories(prev => ({
+        ...prev,
+        [categoryKey]: {
+          ...prev[categoryKey],
+          items: prev[categoryKey].items.map(item =>
+            item.id === selectedNistItem.id 
+              ? { ...item, evidence: [...(item.evidence || []), newEvidence] }
+              : item
+          )
+        }
+      }));
+
+      setEvidenceForm({ fileName: "", description: "", uploadDate: "" });
+      setShowEvidenceDialog(false);
+      
+      toast({
+        title: "Evidence Added",
+        description: `Evidence "${evidenceForm.fileName}" added successfully`,
+      });
+    }
   };
 
   return (
@@ -697,7 +793,10 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
                           }`} />
                           <h4 className="font-medium">{item.name}</h4>
                         </div>
-                        <Select value={item.status}>
+                        <Select 
+                          value={item.status} 
+                          onValueChange={(value) => handleUpdateNistItemStatus(selectedNistCategory.key, item.id, value)}
+                        >
                           <SelectTrigger className="w-32">
                             <SelectValue />
                           </SelectTrigger>
@@ -717,15 +816,36 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
                         <Progress value={item.progress} className="h-2 mt-1" />
                       </div>
                       
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <FileText className="w-3 h-3 mr-1" />
-                          Evidence
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Users className="w-3 h-3 mr-1" />
-                          Assign
-                        </Button>
+                      <div className="flex items-center justify-between">
+                        <div className="flex space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedNistItem(item);
+                              setShowEvidenceDialog(true);
+                            }}
+                          >
+                            <FileText className="w-3 h-3 mr-1" />
+                            Evidence ({item.evidence?.length || 0})
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedNistItem(item);
+                              setShowAssignItemDialog(true);
+                            }}
+                          >
+                            <Users className="w-3 h-3 mr-1" />
+                            {item.assignee ? `Assigned: ${item.assignee}` : "Assign"}
+                          </Button>
+                        </div>
+                        {item.assignee && (
+                          <Badge variant="outline" className="text-xs">
+                            {item.assignee}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </Card>
@@ -744,6 +864,141 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
                   setShowNistConfigDialog(false);
                 }}>
                   Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Evidence Management Dialog */}
+        <Dialog open={showEvidenceDialog} onOpenChange={setShowEvidenceDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Manage Evidence: {selectedNistItem?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              {/* Existing Evidence */}
+              {selectedNistItem?.evidence?.length > 0 && (
+                <div>
+                  <Label className="text-base font-medium">Existing Evidence</Label>
+                  <div className="space-y-2 mt-2">
+                    {selectedNistItem.evidence.map((evidence, index) => (
+                      <Card key={index} className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-sm">{evidence.fileName || evidence}</p>
+                            {evidence.description && (
+                              <p className="text-xs text-muted-foreground">{evidence.description}</p>
+                            )}
+                            {evidence.uploadDate && (
+                              <p className="text-xs text-muted-foreground">Uploaded: {evidence.uploadDate}</p>
+                            )}
+                          </div>
+                          <Button variant="outline" size="sm">
+                            <Download className="w-3 h-3 mr-1" />
+                            Download
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Add New Evidence */}
+              <div className="space-y-4">
+                <Label className="text-base font-medium">Add New Evidence</Label>
+                <div>
+                  <Label htmlFor="evidence-name">File Name</Label>
+                  <Input 
+                    id="evidence-name" 
+                    placeholder="Enter file name"
+                    value={evidenceForm.fileName}
+                    onChange={(e) => setEvidenceForm({...evidenceForm, fileName: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="evidence-description">Description</Label>
+                  <Textarea 
+                    id="evidence-description" 
+                    placeholder="Describe this evidence"
+                    value={evidenceForm.description}
+                    onChange={(e) => setEvidenceForm({...evidenceForm, description: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="evidence-date">Upload Date</Label>
+                  <Input 
+                    id="evidence-date" 
+                    type="date"
+                    value={evidenceForm.uploadDate}
+                    onChange={(e) => setEvidenceForm({...evidenceForm, uploadDate: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowEvidenceDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddEvidence}>
+                  Add Evidence
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Assignment Dialog */}
+        <Dialog open={showAssignItemDialog} onOpenChange={setShowAssignItemDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Assign Responsibility: {selectedNistItem?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {selectedNistItem?.assignee && (
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm">
+                    <strong>Currently assigned to:</strong> {selectedNistItem.assignee}
+                  </p>
+                </div>
+              )}
+              
+              <div>
+                <Label htmlFor="item-assignee-name">Assignee Name</Label>
+                <Input 
+                  id="item-assignee-name" 
+                  placeholder="Enter assignee name"
+                  value={itemAssignmentForm.assigneeName}
+                  onChange={(e) => setItemAssignmentForm({...itemAssignmentForm, assigneeName: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="item-assignee-email">Email</Label>
+                <Input 
+                  id="item-assignee-email" 
+                  type="email"
+                  placeholder="Enter email address"
+                  value={itemAssignmentForm.assigneeEmail}
+                  onChange={(e) => setItemAssignmentForm({...itemAssignmentForm, assigneeEmail: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="assignment-notes">Notes</Label>
+                <Textarea 
+                  id="assignment-notes" 
+                  placeholder="Additional notes or instructions"
+                  value={itemAssignmentForm.notes}
+                  onChange={(e) => setItemAssignmentForm({...itemAssignmentForm, notes: e.target.value})}
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowAssignItemDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAssignNistItem}>
+                  Assign Responsibility
                 </Button>
               </div>
             </div>

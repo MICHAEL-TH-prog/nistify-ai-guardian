@@ -5,6 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import { 
   Search, Server, Users, AlertTriangle, CheckCircle, Plus, Database, 
   Shield, TrendingUp, Building, Settings, ChevronDown, Activity,
@@ -13,6 +20,135 @@ import {
 } from "lucide-react";
 
 const Identify = () => {
+  const { toast } = useToast();
+  const [addAssetOpen, setAddAssetOpen] = useState(false);
+  const [logVulnOpen, setLogVulnOpen] = useState(false);
+  const [assessSupplierOpen, setAssessSupplierOpen] = useState(false);
+  const [recordImprovementOpen, setRecordImprovementOpen] = useState(false);
+  const [viewActivityOpen, setViewActivityOpen] = useState(false);
+
+  // Form states
+  const [assetForm, setAssetForm] = useState({
+    name: "",
+    type: "",
+    criticality: "",
+    location: "",
+    owner: "",
+    description: ""
+  });
+
+  const [vulnForm, setVulnForm] = useState({
+    title: "",
+    severity: "",
+    asset: "",
+    description: "",
+    cve: "",
+    discoveryMethod: ""
+  });
+
+  const [supplierForm, setSupplierForm] = useState({
+    name: "",
+    service: "",
+    criticality: "",
+    contact: "",
+    contractEnd: "",
+    riskLevel: ""
+  });
+
+  const [improvementForm, setImprovementForm] = useState({
+    title: "",
+    source: "",
+    priority: "",
+    description: "",
+    category: "",
+    estimatedEffort: ""
+  });
+
+  // Handle form submissions
+  const handleAddAsset = () => {
+    if (!assetForm.name || !assetForm.type || !assetForm.criticality) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Asset Added",
+      description: `${assetForm.name} has been successfully added to the asset inventory.`,
+    });
+
+    // Reset form and close dialog
+    setAssetForm({ name: "", type: "", criticality: "", location: "", owner: "", description: "" });
+    setAddAssetOpen(false);
+  };
+
+  const handleLogVuln = () => {
+    if (!vulnForm.title || !vulnForm.severity || !vulnForm.asset) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Vulnerability Logged",
+      description: `${vulnForm.title} has been logged and assigned for assessment.`,
+    });
+
+    setVulnForm({ title: "", severity: "", asset: "", description: "", cve: "", discoveryMethod: "" });
+    setLogVulnOpen(false);
+  };
+
+  const handleAssessSupplier = () => {
+    if (!supplierForm.name || !supplierForm.service || !supplierForm.criticality) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Supplier Assessment Initiated",
+      description: `Assessment for ${supplierForm.name} has been scheduled and assigned.`,
+    });
+
+    setSupplierForm({ name: "", service: "", criticality: "", contact: "", contractEnd: "", riskLevel: "" });
+    setAssessSupplierOpen(false);
+  };
+
+  const handleRecordImprovement = () => {
+    if (!improvementForm.title || !improvementForm.source || !improvementForm.priority) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Improvement Opportunity Recorded",
+      description: `${improvementForm.title} has been added to the improvement backlog.`,
+    });
+
+    setImprovementForm({ title: "", source: "", priority: "", description: "", category: "", estimatedEffort: "" });
+    setRecordImprovementOpen(false);
+  };
+
+  const handleViewAllActivity = () => {
+    toast({
+      title: "Activity Dashboard",
+      description: "Opening comprehensive activity and audit log viewer.",
+    });
+    setViewActivityOpen(false);
+  };
   // NIST CSF 2.0 Identify Function Data
   const recentActivity = [
     { id: 1, action: "New hardware inventory added", time: "2 hours ago", icon: HardDrive, type: "asset" },
@@ -614,22 +750,396 @@ const Identify = () => {
                 <CardTitle className="text-lg">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full justify-start" variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Asset
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <AlertTriangle className="w-4 h-4 mr-2" />
-                  Log Vulnerability
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Truck className="w-4 h-4 mr-2" />
-                  Assess Supplier
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Record Improvement
-                </Button>
+                {/* Add Asset Dialog */}
+                <Dialog open={addAssetOpen} onOpenChange={setAddAssetOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full justify-start" variant="outline">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Asset
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-h-[90vh] flex flex-col">
+                    <DialogHeader>
+                      <DialogTitle>Add New Asset</DialogTitle>
+                      <DialogDescription>
+                        Add a new asset to your organization's inventory for tracking and risk assessment.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="asset-name">Asset Name *</Label>
+                          <Input
+                            id="asset-name"
+                            value={assetForm.name}
+                            onChange={(e) => setAssetForm({...assetForm, name: e.target.value})}
+                            placeholder="Enter asset name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="asset-type">Asset Type *</Label>
+                          <Select value={assetForm.type} onValueChange={(value) => setAssetForm({...assetForm, type: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="hardware">Hardware</SelectItem>
+                              <SelectItem value="software">Software</SelectItem>
+                              <SelectItem value="system">System</SelectItem>
+                              <SelectItem value="service">Service</SelectItem>
+                              <SelectItem value="data">Data</SelectItem>
+                              <SelectItem value="network">Network</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="asset-criticality">Criticality *</Label>
+                          <Select value={assetForm.criticality} onValueChange={(value) => setAssetForm({...assetForm, criticality: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select criticality" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="critical">Critical</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="asset-location">Location</Label>
+                          <Input
+                            id="asset-location"
+                            value={assetForm.location}
+                            onChange={(e) => setAssetForm({...assetForm, location: e.target.value})}
+                            placeholder="Physical/logical location"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="asset-owner">Asset Owner</Label>
+                        <Input
+                          id="asset-owner"
+                          value={assetForm.owner}
+                          onChange={(e) => setAssetForm({...assetForm, owner: e.target.value})}
+                          placeholder="Responsible person/team"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="asset-description">Description</Label>
+                        <Textarea
+                          id="asset-description"
+                          value={assetForm.description}
+                          onChange={(e) => setAssetForm({...assetForm, description: e.target.value})}
+                          placeholder="Detailed description of the asset..."
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter className="bg-background border-t pt-4">
+                      <Button variant="outline" onClick={() => setAddAssetOpen(false)}>Cancel</Button>
+                      <Button onClick={handleAddAsset}>Add Asset</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Log Vulnerability Dialog */}
+                <Dialog open={logVulnOpen} onOpenChange={setLogVulnOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full justify-start" variant="outline">
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      Log Vulnerability
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-h-[90vh] flex flex-col">
+                    <DialogHeader>
+                      <DialogTitle>Log New Vulnerability</DialogTitle>
+                      <DialogDescription>
+                        Record a newly identified vulnerability for assessment and remediation tracking.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="vuln-title">Vulnerability Title *</Label>
+                          <Input
+                            id="vuln-title"
+                            value={vulnForm.title}
+                            onChange={(e) => setVulnForm({...vulnForm, title: e.target.value})}
+                            placeholder="Brief vulnerability title"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="vuln-severity">Severity *</Label>
+                          <Select value={vulnForm.severity} onValueChange={(value) => setVulnForm({...vulnForm, severity: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select severity" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="critical">Critical</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="vuln-asset">Affected Asset *</Label>
+                          <Input
+                            id="vuln-asset"
+                            value={vulnForm.asset}
+                            onChange={(e) => setVulnForm({...vulnForm, asset: e.target.value})}
+                            placeholder="Asset name or identifier"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="vuln-cve">CVE ID</Label>
+                          <Input
+                            id="vuln-cve"
+                            value={vulnForm.cve}
+                            onChange={(e) => setVulnForm({...vulnForm, cve: e.target.value})}
+                            placeholder="CVE-YYYY-NNNN"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="vuln-discovery">Discovery Method</Label>
+                        <Select value={vulnForm.discoveryMethod} onValueChange={(value) => setVulnForm({...vulnForm, discoveryMethod: value})}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="How was this discovered?" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="scan">Vulnerability Scan</SelectItem>
+                            <SelectItem value="pentest">Penetration Test</SelectItem>
+                            <SelectItem value="disclosure">Responsible Disclosure</SelectItem>
+                            <SelectItem value="internal">Internal Discovery</SelectItem>
+                            <SelectItem value="vendor">Vendor Advisory</SelectItem>
+                            <SelectItem value="threat-intel">Threat Intelligence</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="vuln-description">Description</Label>
+                        <Textarea
+                          id="vuln-description"
+                          value={vulnForm.description}
+                          onChange={(e) => setVulnForm({...vulnForm, description: e.target.value})}
+                          placeholder="Detailed vulnerability description, impact, and potential exploits..."
+                          className="min-h-[100px]"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter className="bg-background border-t pt-4">
+                      <Button variant="outline" onClick={() => setLogVulnOpen(false)}>Cancel</Button>
+                      <Button onClick={handleLogVuln}>Log Vulnerability</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Assess Supplier Dialog */}
+                <Dialog open={assessSupplierOpen} onOpenChange={setAssessSupplierOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full justify-start" variant="outline">
+                      <Truck className="w-4 h-4 mr-2" />
+                      Assess Supplier
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-h-[90vh] flex flex-col">
+                    <DialogHeader>
+                      <DialogTitle>Initiate Supplier Assessment</DialogTitle>
+                      <DialogDescription>
+                        Schedule a cybersecurity risk assessment for a critical supplier or vendor.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="supplier-name">Supplier Name *</Label>
+                          <Input
+                            id="supplier-name"
+                            value={supplierForm.name}
+                            onChange={(e) => setSupplierForm({...supplierForm, name: e.target.value})}
+                            placeholder="Supplier/vendor name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="supplier-service">Primary Service *</Label>
+                          <Input
+                            id="supplier-service"
+                            value={supplierForm.service}
+                            onChange={(e) => setSupplierForm({...supplierForm, service: e.target.value})}
+                            placeholder="Main service provided"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="supplier-criticality">Business Criticality *</Label>
+                          <Select value={supplierForm.criticality} onValueChange={(value) => setSupplierForm({...supplierForm, criticality: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select criticality" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="critical">Critical</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="supplier-risk">Current Risk Level</Label>
+                          <Select value={supplierForm.riskLevel} onValueChange={(value) => setSupplierForm({...supplierForm, riskLevel: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select risk level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="low">Low Risk</SelectItem>
+                              <SelectItem value="medium">Medium Risk</SelectItem>
+                              <SelectItem value="high">High Risk</SelectItem>
+                              <SelectItem value="unknown">Unknown</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="supplier-contact">Primary Contact</Label>
+                          <Input
+                            id="supplier-contact"
+                            value={supplierForm.contact}
+                            onChange={(e) => setSupplierForm({...supplierForm, contact: e.target.value})}
+                            placeholder="Contact email or name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="supplier-contract">Contract End Date</Label>
+                          <Input
+                            id="supplier-contract"
+                            type="date"
+                            value={supplierForm.contractEnd}
+                            onChange={(e) => setSupplierForm({...supplierForm, contractEnd: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter className="bg-background border-t pt-4">
+                      <Button variant="outline" onClick={() => setAssessSupplierOpen(false)}>Cancel</Button>
+                      <Button onClick={handleAssessSupplier}>Schedule Assessment</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Record Improvement Dialog */}
+                <Dialog open={recordImprovementOpen} onOpenChange={setRecordImprovementOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full justify-start" variant="outline">
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      Record Improvement
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-h-[90vh] flex flex-col">
+                    <DialogHeader>
+                      <DialogTitle>Record Improvement Opportunity</DialogTitle>
+                      <DialogDescription>
+                        Document a new improvement opportunity identified from evaluations, tests, or assessments.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="improvement-title">Improvement Title *</Label>
+                          <Input
+                            id="improvement-title"
+                            value={improvementForm.title}
+                            onChange={(e) => setImprovementForm({...improvementForm, title: e.target.value})}
+                            placeholder="Brief improvement title"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="improvement-source">Source *</Label>
+                          <Select value={improvementForm.source} onValueChange={(value) => setImprovementForm({...improvementForm, source: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select source" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="audit">Security Audit</SelectItem>
+                              <SelectItem value="assessment">Risk Assessment</SelectItem>
+                              <SelectItem value="exercise">Security Exercise</SelectItem>
+                              <SelectItem value="incident">Incident Response</SelectItem>
+                              <SelectItem value="compliance">Compliance Review</SelectItem>
+                              <SelectItem value="evaluation">Internal Evaluation</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="improvement-priority">Priority *</Label>
+                          <Select value={improvementForm.priority} onValueChange={(value) => setImprovementForm({...improvementForm, priority: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="critical">Critical</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="improvement-category">Category</Label>
+                          <Select value={improvementForm.category} onValueChange={(value) => setImprovementForm({...improvementForm, category: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="process">Process Improvement</SelectItem>
+                              <SelectItem value="technology">Technology Enhancement</SelectItem>
+                              <SelectItem value="training">Training & Awareness</SelectItem>
+                              <SelectItem value="governance">Governance & Policy</SelectItem>
+                              <SelectItem value="compliance">Compliance</SelectItem>
+                              <SelectItem value="incident-response">Incident Response</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="improvement-effort">Estimated Effort</Label>
+                        <Select value={improvementForm.estimatedEffort} onValueChange={(value) => setImprovementForm({...improvementForm, estimatedEffort: value})}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select effort estimate" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Low (1-2 weeks)</SelectItem>
+                            <SelectItem value="medium">Medium (1-2 months)</SelectItem>
+                            <SelectItem value="high">High (3-6 months)</SelectItem>
+                            <SelectItem value="major">Major (6+ months)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="improvement-description">Description</Label>
+                        <Textarea
+                          id="improvement-description"
+                          value={improvementForm.description}
+                          onChange={(e) => setImprovementForm({...improvementForm, description: e.target.value})}
+                          placeholder="Detailed description of the improvement opportunity, expected benefits, and implementation approach..."
+                          className="min-h-[100px]"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter className="bg-background border-t pt-4">
+                      <Button variant="outline" onClick={() => setRecordImprovementOpen(false)}>Cancel</Button>
+                      <Button onClick={handleRecordImprovement}>Record Improvement</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
 
@@ -656,9 +1166,105 @@ const Identify = () => {
                     </div>
                   );
                 })}
-                <Button variant="ghost" className="w-full text-xs">
-                  View All Activity
-                </Button>
+                <Dialog open={viewActivityOpen} onOpenChange={setViewActivityOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" className="w-full text-xs">
+                      View All Activity
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+                    <DialogHeader>
+                      <DialogTitle>Activity Dashboard</DialogTitle>
+                      <DialogDescription>
+                        Comprehensive view of all system activities, changes, and audit logs.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto">
+                      <Tabs defaultValue="recent" className="w-full">
+                        <TabsList className="grid w-full grid-cols-4">
+                          <TabsTrigger value="recent">Recent</TabsTrigger>
+                          <TabsTrigger value="assets">Assets</TabsTrigger>
+                          <TabsTrigger value="vulnerabilities">Vulnerabilities</TabsTrigger>
+                          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="recent" className="space-y-4 mt-4">
+                          {recentActivity.map((activity) => {
+                            const ActivityIcon = getActivityIcon(activity.type);
+                            return (
+                              <div key={activity.id} className="flex items-start space-x-3 p-3 bg-secondary/30 rounded-lg">
+                                <div className="bg-secondary p-2 rounded-full">
+                                  <ActivityIcon className="w-4 h-4 text-muted-foreground" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm text-foreground">{activity.action}</p>
+                                  <p className="text-xs text-muted-foreground">{activity.time}</p>
+                                </div>
+                                <Badge variant="outline" className="text-xs capitalize">{activity.type}</Badge>
+                              </div>
+                            );
+                          })}
+                        </TabsContent>
+                        <TabsContent value="assets" className="mt-4">
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <HardDrive className="w-4 h-4 text-primary" />
+                                <span className="text-sm">Database Server #1 added</span>
+                              </div>
+                              <span className="text-xs text-muted-foreground">1 hour ago</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <Database className="w-4 h-4 text-primary" />
+                                <span className="text-sm">Customer Database updated</span>
+                              </div>
+                              <span className="text-xs text-muted-foreground">3 hours ago</span>
+                            </div>
+                          </div>
+                        </TabsContent>
+                        <TabsContent value="vulnerabilities" className="mt-4">
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <AlertTriangle className="w-4 h-4 text-destructive" />
+                                <span className="text-sm">CVE-2024-0001 identified</span>
+                              </div>
+                              <Badge variant="destructive" className="text-xs">High</Badge>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <CheckCircle className="w-4 h-4 text-success" />
+                                <span className="text-sm">CVE-2023-9999 remediated</span>
+                              </div>
+                              <Badge variant="default" className="text-xs">Closed</Badge>
+                            </div>
+                          </div>
+                        </TabsContent>
+                        <TabsContent value="suppliers" className="mt-4">
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <Truck className="w-4 h-4 text-warning" />
+                                <span className="text-sm">CloudProvider Inc assessment completed</span>
+                              </div>
+                              <Badge variant="secondary" className="text-xs">Passed</Badge>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <AlertTriangle className="w-4 h-4 text-destructive" />
+                                <span className="text-sm">DataVendor LLC requires review</span>
+                              </div>
+                              <Badge variant="destructive" className="text-xs">Action Required</Badge>
+                            </div>
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                    </div>
+                    <DialogFooter className="bg-background border-t pt-4">
+                      <Button onClick={handleViewAllActivity}>Open Full Dashboard</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           </div>

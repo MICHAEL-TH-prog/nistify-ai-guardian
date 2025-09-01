@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   Shield, FileText, Users, Target, CheckCircle, AlertCircle, Plus, 
   Download, Building, TrendingUp, UserCheck, BookOpen, Eye,
-  Link, ShoppingCart, BarChart3, Settings, AlertTriangle
+  Link, ShoppingCart, BarChart3, Settings, AlertTriangle, Upload
 } from "lucide-react";
 
 const Govern = () => {
@@ -65,7 +65,8 @@ const Govern = () => {
   const [evidenceForm, setEvidenceForm] = useState({
     fileName: "",
     description: "",
-    uploadDate: ""
+    uploadDate: "",
+    uploadedFile: null
   });
 
   // Calculate metrics
@@ -346,7 +347,7 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
         }
       }));
 
-      setEvidenceForm({ fileName: "", description: "", uploadDate: "" });
+      setEvidenceForm({ fileName: "", description: "", uploadDate: "", uploadedFile: null });
       setShowEvidenceDialog(false);
       
       toast({
@@ -909,11 +910,60 @@ ${Object.entries(nistCategories).map(([key, cat]) =>
               {/* Add New Evidence */}
               <div className="space-y-4">
                 <Label className="text-base font-medium">Add New Evidence</Label>
+                
+                {/* File Upload Section */}
+                <div className="space-y-4 p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Upload className="w-5 h-5 text-muted-foreground" />
+                    <Label className="text-sm font-medium">Upload Document</Label>
+                  </div>
+                  
+                  <div>
+                    <Input 
+                      type="file" 
+                      accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.xlsx,.xls"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setEvidenceForm({
+                            ...evidenceForm, 
+                            uploadedFile: file,
+                            fileName: file.name
+                          });
+                        }
+                      }}
+                      className="cursor-pointer"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG, XLSX, XLS (max 10MB)
+                    </p>
+                  </div>
+                  
+                  {evidenceForm.uploadedFile && (
+                    <div className="flex items-center space-x-2 p-2 bg-muted rounded">
+                      <FileText className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">{evidenceForm.uploadedFile.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({(evidenceForm.uploadedFile.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          setEvidenceForm({...evidenceForm, uploadedFile: null, fileName: ""});
+                        }}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
                 <div>
-                  <Label htmlFor="evidence-name">File Name</Label>
+                  <Label htmlFor="evidence-name">File Name (Optional Override)</Label>
                   <Input 
                     id="evidence-name" 
-                    placeholder="Enter file name"
+                    placeholder="Enter custom file name"
                     value={evidenceForm.fileName}
                     onChange={(e) => setEvidenceForm({...evidenceForm, fileName: e.target.value})}
                   />
